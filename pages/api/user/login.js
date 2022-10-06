@@ -12,17 +12,30 @@ export default function loginRoute(req, res) {
       typeof password !== "string" ||
       password.length === 0
     )
-      return res
-        .status(400)
-        .json({ ok: false, message: "Username or password cannot be empty" });
+      return res.status(400).json({ ok: false, message: "Username or password cannot be empty" });
 
     const users = readUsersDB();
     //find user with username & password
-
-    // return res.status(400).json({ ok: false, message: "Invalid Username or Password" });
+    const foundUser = users.find(
+      (x) => username === x.username && bcrypt.compareSync(password, x.password)
+    );
+    if (!foundUser) {
+      return res.status(400).json({ ok: false, message: "Invalid Username or Password" });
+    }
 
     const secret = process.env.JWT_SECRET;
     //create token and return response
+    const token = jwt.sign(
+      { username: foundUser.username, isAdmin: foundUser.isAdmin },
+      secret,
+      { expiresIn: "1800s" }
+    );
+    res.json({
+      ok: true,
+      username: foundUser.username,
+      isAdmin: foundUser.isAdmin,
+      token,
+    });
   } else {
     return res.status(400).json({ ok: false, message: "Invalid HTTP Method" });
   }
