@@ -28,7 +28,7 @@ export default function loginRoute(req, res) {
     const token = jwt.sign(
       { username: foundUser.username, isAdmin: foundUser.isAdmin },
       secret,
-      { expiresIn: "1800s" }
+      { expiresIn: "1899s" }
     );
     res.json({
       ok: true,
